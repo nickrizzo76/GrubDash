@@ -28,15 +28,15 @@ function update(req, res, _next) {
   res.status(200).json( {data: {...oldOrderData, ...newOrderData} });
 }
 
-function list(_req, res, _next) {
-  res.json({ data: orders })
+function destroy(req, res, _next) {
+  const { orderId } = req.params;
+ const index = orders.findIndex(order => order.id === Number(orderId));
+ const deletedOrders = orders.splice(index, 1);
+ res.sendStatus(204);
 }
 
-function destroy(req, res, _next) {
-   const { orderId } = req.params;
-  const index = orders.findIndex(order => order.id === Number(orderId));
-  const deletedOrders = orders.splice(index, 1);
-  res.sendStatus(204);
+function list(_req, res, _next) {
+  res.json({ data: orders })
 }
 /* <== CRUDL */
 
@@ -59,7 +59,7 @@ function orderIdsMatch(req, _res, next) {
   const bodyId = req.body.data.id
   const paramId = req.params.orderId
 
-  // No id in request body
+  // No id in request body => assign param id to body id
   if(bodyId === null || !bodyId || bodyId === "") {
     req.body.data.id = paramId;
     return next();
