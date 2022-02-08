@@ -54,7 +54,7 @@ function orderIdExists(req, res, next) {
   })
 }
 
-// compares the order id passed in the request body with the route/param id
+// compares the id passed in the request body with the route/param id
 function orderIdsMatch(req, _res, next) {
   const bodyId = req.body.data.id
   const paramId = req.params.orderId
