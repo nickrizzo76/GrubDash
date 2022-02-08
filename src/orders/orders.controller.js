@@ -4,14 +4,7 @@ const orders = require(path.resolve("src/data/orders-data"));
 // Use this function to assigh ID's when necessary
 const nextId = require("../utils/nextId");
 
-function read(_req, res, _next) {
-  res.json({ data: res.locals.order })
-}
-
-function list(_req, res, _next) {
-  res.json({ data: orders })
-}
-
+/* CRUDL ==> */
 function create(req, res, _next) {
   const { deliverTo, mobileNumber, status, dishes } = req.body.data
   const newOrder = {
@@ -25,10 +18,18 @@ function create(req, res, _next) {
   res.status(201).json({ data: newOrder })
 }
 
+function read(_req, res, _next) {
+  res.json({ data: res.locals.order })
+}
+
 function update(req, res, _next) {
   const oldOrderData = res.locals.order;
   const newOrderData = req.body.data
   res.status(200).json( {data: {...oldOrderData, ...newOrderData} });
+}
+
+function list(_req, res, _next) {
+  res.json({ data: orders })
 }
 
 function destroy(req, res, _next) {
@@ -37,6 +38,7 @@ function destroy(req, res, _next) {
   const deletedOrders = orders.splice(index, 1);
   res.sendStatus(204);
 }
+/* <== CRUDL */
 
 // MIDDLEWARE
 function orderIdExists(req, res, next) {
@@ -52,15 +54,18 @@ function orderIdExists(req, res, next) {
   })
 }
 
+// compares the order id passed in the request body with the route/param id
 function orderIdsMatch(req, _res, next) {
   const bodyId = req.body.data.id
   const paramId = req.params.orderId
 
+  // No id in request body
   if(bodyId === null || !bodyId || bodyId === "") {
     req.body.data.id = paramId;
     return next();
   }
 
+  // Request body id and route/param id do not match
   if(bodyId != paramId) return next({
     status: 400,
     message: `Order id does not match route id. Order: ${bodyId}, Route: ${paramId}.`
@@ -77,6 +82,7 @@ function orderIsPending(_req, res, next) {
   next()
 }
 
+// checks if body contains the property.  Does NOT validate the property
 function bodyDataHas(propertyName) {
   return function (req, _res, next) {
     const { data = {} } = req.body;
@@ -88,6 +94,7 @@ function bodyDataHas(propertyName) {
   };
 }
 
+/* VALIDATION MIDDLEWARE ==> */
 function textPropertyIsValid(propertyName) {
   return function (req, _res, next) {
     if (req.body.data[propertyName] !== "") return next();
@@ -129,6 +136,7 @@ function statusPropertyIsValid(req, _res, next) {
   })
   next();
 }
+/* <== VALIDATION MIDDLEWARE */
 
 module.exports = {
   create: [
