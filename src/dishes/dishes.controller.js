@@ -4,8 +4,7 @@ const dishes = require(path.resolve("src/data/dishes-data"));
 // Use this function to assign ID's when necessary
 const nextId = require("../utils/nextId");
 
-// TODO: Implement the /dishes handlers needed to make the tests pass
-function create(req, res, next) {
+function create(req, res, _next) {
   const { name, description, price, image_url } = req.body.data;
   const newDish = {
     id: nextId(),
@@ -18,11 +17,11 @@ function create(req, res, next) {
   res.status(201).json({data: newDish}); 
 }
 
-function list(req, res, next) {
+function list(_req, res, _next) {
   res.json({ data: dishes });
 }
 
-function read(req, res, next) {
+function read(_req, res, _next) {
   res.json({ data: res.locals.dish })
 }
 
@@ -47,7 +46,7 @@ function dishIdExists(req, res, next) {
   })
 }
 
-function dishIdsMatch(req, res, next) {
+function dishIdsMatch(req, _res, next) {
   const bodyId = req.body.data.id
   const paramId = req.params.dishId
 
@@ -65,7 +64,7 @@ function dishIdsMatch(req, res, next) {
 
 //Body data validation
 function bodyDataHas(propertyName) {
-  return function (req, res, next) {
+  return function (req, _res, next) {
     const { data = {} } = req.body;
     if (data[propertyName]) return next();
     next({
@@ -76,7 +75,7 @@ function bodyDataHas(propertyName) {
 }
 
 function textPropertyIsValid(propertyName) {
-  return function (req, res, next) {
+  return function (req, _res, next) {
     if (req.body.data[propertyName] !== "") return next();
     next({
       status: 400,
@@ -85,7 +84,7 @@ function textPropertyIsValid(propertyName) {
   };
 }
 
-function pricePropertyIsValid(req, res, next) {
+function pricePropertyIsValid(req, _res, next) {
     const { price } = req.body.data;
     if(typeof price !== "number") return next({
       status: 400,

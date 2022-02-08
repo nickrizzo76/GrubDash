@@ -4,16 +4,15 @@ const orders = require(path.resolve("src/data/orders-data"));
 // Use this function to assigh ID's when necessary
 const nextId = require("../utils/nextId");
 
-// TODO: Implement the /orders handlers needed to make the tests pass
-function read(req, res, next) {
+function read(_req, res, _next) {
   res.json({ data: res.locals.order })
 }
 
-function list(req, res, next) {
+function list(_req, res, _next) {
   res.json({ data: orders })
 }
 
-function create(req, res, next) {
+function create(req, res, _next) {
   const { deliverTo, mobileNumber, status, dishes } = req.body.data
   const newOrder = {
     id: nextId(),
@@ -26,13 +25,13 @@ function create(req, res, next) {
   res.status(201).json({ data: newOrder })
 }
 
-function update(req, res, next) {
+function update(req, res, _next) {
   const oldOrderData = res.locals.order;
   const newOrderData = req.body.data
   res.status(200).json( {data: {...oldOrderData, ...newOrderData} });
 }
 
-function destroy(req, res, next) {
+function destroy(req, res, _next) {
    const { orderId } = req.params;
   const index = orders.findIndex(order => order.id === Number(orderId));
   const deletedOrders = orders.splice(index, 1);
@@ -53,7 +52,7 @@ function orderIdExists(req, res, next) {
   })
 }
 
-function orderIdsMatch(req, res, next) {
+function orderIdsMatch(req, _res, next) {
   const bodyId = req.body.data.id
   const paramId = req.params.orderId
 
@@ -69,7 +68,7 @@ function orderIdsMatch(req, res, next) {
   return next();
 }
 
-function orderIsPending(req, res, next) {
+function orderIsPending(_req, res, next) {
   const { status } = res.locals.order;
   if(status !== 'pending') return next({
     status: 400,
@@ -79,7 +78,7 @@ function orderIsPending(req, res, next) {
 }
 
 function bodyDataHas(propertyName) {
-  return function (req, res, next) {
+  return function (req, _res, next) {
     const { data = {} } = req.body;
     if (data[propertyName]) return next();
     next({
@@ -90,7 +89,7 @@ function bodyDataHas(propertyName) {
 }
 
 function textPropertyIsValid(propertyName) {
-  return function (req, res, next) {
+  return function (req, _res, next) {
     if (req.body.data[propertyName] !== "") return next();
     next({
       status: 400,
@@ -99,7 +98,7 @@ function textPropertyIsValid(propertyName) {
   };
 }
 
-function dishesPropertyIsValid(req, res, next) {
+function dishesPropertyIsValid(req, _res, next) {
   const { dishes } = req.body.data;
   if(!Array.isArray(dishes) || dishes.length === 0) {
     return next({
@@ -110,7 +109,7 @@ function dishesPropertyIsValid(req, res, next) {
   next();
 }
 
-function quantityPropertyIsValid(req, res, next) {
+function quantityPropertyIsValid(req, _res, next) {
   const { dishes } = req.body.data;
   for(let i in dishes) {
     const quantity = dishes[i].quantity;
@@ -122,7 +121,7 @@ function quantityPropertyIsValid(req, res, next) {
   next();
 }
 
-function statusPropertyIsValid(req, res, next) {
+function statusPropertyIsValid(req, _res, next) {
   const { status } = req.body.data;
   if(!status || status === null || (status !== "pending" && status !== "delivered")) return next({
     status: 400,
